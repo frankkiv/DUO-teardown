@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>iPhone Duo 拆解模擬（非官方）</title>
+<meta name="description" content="iPhone Duo 的互動 3D 拆解模型：尺寸與規格取自 Apple 規格頁與 iFixit 拆解，內部配置部分為推定。非 Apple 官方製作。">
+<style>
+/*FONTS*/
+:root{--ink:#1d2024;--mut:#6b7078;--line:#dfe2e6;--panel:rgba(255,255,255,.94);--acc:#e8562a;--bg:#eef0f2}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font:14px/1.5 'Inter','Noto Sans TC','PingFang TC','Microsoft JhengHei',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#gl:active{cursor:grabbing}
+#leaders{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+#leaders path{stroke:var(--acc);stroke-width:1.2;fill:none}
+#leaders circle{fill:var(--acc);stroke:#fff;stroke-width:1.5}
+#labels{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.lab{will-change:transform}
+.lab{position:absolute;left:0;top:0;padding:3px 9px;border-radius:6px;background:#fff;border:1px solid var(--acc);font-size:12.5px;font-weight:600;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.panel{position:fixed;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 6px 24px rgba(30,40,60,.07)}
+#left{left:16px;top:16px;width:292px}
+#right{right:16px;top:16px;width:320px;max-height:calc(100% - 32px);overflow:auto}
+h1{font-size:19px;margin:0;letter-spacing:-.01em}
+.tag{display:inline-block;margin:4px 0 12px;padding:1px 8px;border-radius:99px;background:#fff3ee;color:var(--acc);border:1px solid #f6c9b8;font-size:11.5px;font-weight:600}
+label.row{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--mut);margin-top:10px}
+label.row b{color:var(--ink);font:600 13px 'JetBrains Mono',ui-monospace,monospace}
+.slide{position:relative;height:24px}
+.slide input{position:absolute;inset:0;width:100%;margin:0;accent-color:var(--acc);cursor:ew-resize}
+#ticks{position:absolute;left:8px;right:8px;top:19px;height:5px;pointer-events:none}
+#ticks i{position:absolute;width:1px;height:5px;background:#b9bec6}
+.btns{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+button{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .15s,border-color .15s}
+button:hover{border-color:#b9bec6}
+button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+button i{width:7px;height:7px;border-radius:50%;background:var(--acc)}
+button.on i{background:#fff;animation:bl 1.2s steps(2) infinite}
+@keyframes bl{50%{opacity:.2}}
+kbd{font:600 10.5px 'JetBrains Mono',ui-monospace,monospace;color:var(--mut);border:1px solid var(--line);border-radius:4px;padding:0 4px;background:#f6f7f8}
+button.on kbd{color:#fff;background:transparent;border-color:rgba(255,255,255,.5)}
+#systems{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+#systems button{justify-content:flex-start;padding:7px 8px;white-space:nowrap}
+.ro{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.ro div{font-size:11.5px;color:var(--mut)}
+.ro b{display:block;color:var(--ink);font:600 14px 'JetBrains Mono',ui-monospace,monospace}
+.ro .wide{grid-column:1/3}
+#info{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+#info h3{margin:0 0 4px;font-size:15px;color:var(--acc)}
+#info p{margin:0 0 8px;font-size:13px}
+#info table{width:100%;border-collapse:collapse;font-size:12.5px}
+#info th{text-align:left;font-weight:500;color:var(--mut);padding:4px 10px 4px 0;vertical-align:top;white-space:nowrap}
+#info td{padding:4px 0;border-bottom:1px solid #eceef1}
+#info tr:last-child td{border-bottom:0}
+.src{display:inline-block;font-style:normal;font-size:10px;font-weight:700;line-height:15px;width:15px;text-align:center;border-radius:4px;margin-left:5px;vertical-align:1px;color:#fff}
+.s-o{background:#2a7d4f}.s-t{background:#2f6fb5}.s-r{background:#b07a1c}.s-e{background:#8a8f98}
+.legend{font-size:11px;color:var(--mut);margin:-6px 0 8px;line-height:1.9}.legend .src{margin:0 3px 0 0}.legend .src:not(:first-child){margin-left:7px}
+#caption{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);max-width:min(680px,calc(100% - 32px));text-align:center;padding:10px 18px;border-radius:12px;background:rgba(29,32,36,.9);color:#fff;transition:opacity .3s;pointer-events:none}
+#caption b{display:block;font-size:16px}
+#caption span{font-size:13px;opacity:.85}
+#tourbar{position:fixed;left:0;right:0;bottom:0;height:3px;background:var(--acc);transform-origin:0 0;transform:scaleX(0)}
+.hint{font-size:11.5px;color:var(--mut);margin-top:10px}
+@media (max-width:900px){
+  #left{left:8px;top:8px;width:calc(100% - 16px);padding:10px 12px}
+  #left .ro,#left .hint,#left .legend{display:none}
+  #right{left:8px;right:8px;top:auto;bottom:8px;width:auto;max-height:38%;padding:10px 12px}
+  #systems{grid-template-columns:repeat(5,1fr)}
+  #systems kbd{display:none}
+  #caption,#labels,#leaders{display:none}
+  #right{max-height:32%}
+}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<svg id="leaders"></svg>
+<div id="labels"></div>
+
+<div class="panel" id="left">
+  <h1>iPhone Duo 拆解模擬</h1>
+  <span class="tag">非官方模型 · 規格依 Apple 規格頁與 iFixit 拆解</span>
+  <div class="legend"><i class="src s-o">官</i>Apple 官方 <i class="src s-t">拆</i>iFixit 實拆 <i class="src s-r">報</i>媒體報導 <i class="src s-e">推</i>本頁推定</div>
+  <label class="row">拆解進度<b id="r-parts"></b></label>
+  <div class="slide"><input id="explode" type="range" min="0" max="1000" value="0" aria-label="拆解進度"><div id="ticks"></div></div>
+  <label class="row">鉸鏈角度<b id="r-open">180°</b></label>
+  <div class="slide"><input id="hinge" type="range" min="0" max="180" value="180" aria-label="鉸鏈角度"></div>
+  <div class="btns" style="margin-top:4px">
+    <button data-open="0">合起 0°</button><button data-open="100">立著 100°</button><button data-open="180">攤平 180°</button>
+  </div>
+  <div class="btns">
+    <button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button>
+    <button id="xray"><kbd>X</kbd>透視外殼</button>
+    <button id="reset">重設</button>
+    <button id="tour"><i></i><span>自動導覽</span></button>
+  </div>
+  <div class="ro">
+    <div>機身寬度<b id="r-width"></b></div>
+    <div>機身厚度<b id="r-depth"></b></div>
+    <div>總重<i class="src s-o">官</i><b id="r-mass"></b></div>
+    <div>電池<i class="src s-t">拆</i><b id="r-bat"></b></div>
+  </div>
+  <div class="hint">拖曳旋轉 · 滾輪縮放 · 點零件看規格 · ←/→ 逐步拆 · F 開合 · E 全拆 · 空白鍵導覽</div>
+</div>
+
+<div class="panel" id="right">
+  <div id="systems"></div>
+  <div id="info"></div>
+</div>
+
+<div id="caption"></div>
+<div id="tourbar"></div>
+<script type="module">/*BUNDLE*/</script>
+</body>
+</html>

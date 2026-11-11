@@ -1,0 +1,7 @@
+node_modules/
+reference-teardown/
+.localdeps/
+shots/
+dist/
+.claude/settings.json
+.claude/settings.local.json

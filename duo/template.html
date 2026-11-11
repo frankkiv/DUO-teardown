@@ -57,6 +57,8 @@ button.on kbd{color:#fff;background:transparent;border-color:rgba(255,255,255,.5
 #caption{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);max-width:min(680px,calc(100% - 32px));text-align:center;padding:10px 18px;border-radius:12px;background:rgba(29,32,36,.9);color:#fff;transition:opacity .3s;pointer-events:none}
 #caption b{display:block;font-size:16px}
 #caption span{font-size:13px;opacity:.85}
+#disc{position:fixed;right:16px;bottom:8px;max-width:420px;text-align:right;font-size:10.5px;line-height:1.45;color:#9a9fa7;pointer-events:none}
+#disc-m{display:none}
 #tourbar{position:fixed;left:0;right:0;bottom:0;height:3px;background:var(--acc);transform-origin:0 0;transform:scaleX(0)}
 .hint{font-size:11.5px;color:var(--mut);margin-top:10px}
 @media (max-width:900px){
@@ -67,6 +69,8 @@ button.on kbd{color:#fff;background:transparent;border-color:rgba(255,255,255,.5
   #systems kbd{display:none}
   #caption,#labels,#leaders{display:none}
   #right{max-height:32%}
+  #disc{display:none}
+  #disc-m{display:block;margin-top:10px;font-size:10.5px;line-height:1.45;color:#9a9fa7}
 }
 </style>
 </head>
@@ -104,9 +108,11 @@ button.on kbd{color:#fff;background:transparent;border-color:rgba(255,255,255,.5
 <div class="panel" id="right">
   <div id="systems"></div>
   <div id="info"></div>
+  <div id="disc-m">本模型依網路公開資料（Apple 規格頁、iFixit 拆解、媒體報導）建立，部分內部配置為推定，僅供參考。非 Apple 官方製作，與 Apple、iFixit 無關；iPhone 為 Apple Inc. 商標。</div>
 </div>
 
 <div id="caption"></div>
+<div id="disc">本模型依網路公開資料（Apple 規格頁、iFixit 拆解、媒體報導）建立，部分內部配置為推定，僅供參考。非 Apple 官方製作，與 Apple、iFixit 無關；iPhone 為 Apple Inc. 商標。</div>
 <div id="tourbar"></div>
 <script type="module">/*BUNDLE*/</script>
 </body>

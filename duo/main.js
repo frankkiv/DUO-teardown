@@ -81,6 +81,40 @@ function camNow() {
   return {az: Math.atan2(v.x, v.z) / D2R, el: Math.asin(clamp(v.y / dist, -1, 1)) / D2R, dist, ty: controls.target.y};
 }
 
+// ------------------------------------------------------------------ the free region
+// On a phone the panels cover the top and bottom of the canvas. Aim the camera at the part of the screen that is
+// left (setViewOffset slides the projection centre there) and widen the view so the phone fits in it.
+let viewDirty = true;
+const small = matchMedia('(max-width:900px) and (orientation:portrait), (max-height:500px) and (orientation:landscape)');
+function freeRect(W, H) {
+  if (!small.matches) return {l: 0, t: 0, r: W, b: H};
+  const L = document.getElementById('left').getBoundingClientRect(), R = document.getElementById('right').getBoundingClientRect();
+  if (W > H) return {l: L.right, t: 0, r: R.left, b: H};
+  return {l: 0, t: L.bottom, r: W, b: R.top};
+}
+function fitView(W, H) {
+  viewDirty = false;
+  const f = freeRect(W, H);
+  const fw = Math.max(80, f.r - f.l), fh = Math.max(80, f.b - f.t);
+  // the desktop framing is a 32° vertical view on a ~16:10 screen; keep that framing inside the free rectangle
+  const k = (H / fh) * Math.max(1, 1.0 / (fw / fh));
+  camera.aspect = W / H;
+  camera.fov = Math.min(100, (2 * Math.atan(Math.tan(16 * D2R) * k)) / D2R);
+  const cx = (f.l + f.r) / 2, cy = (f.t + f.b) / 2;
+  if (small.matches) camera.setViewOffset(W, H, W / 2 - cx, H / 2 - cy, W, H);
+  else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+  document.documentElement.style.setProperty('--cap-top', `${Math.round(f.b - 8)}px`);
+}
+small.addEventListener('change', () => (viewDirty = true));
+addEventListener('load', () => (viewDirty = true));
+if (document.fonts) document.fonts.ready.then(() => (viewDirty = true));
+if (window.ResizeObserver) {
+  const ro = new ResizeObserver(() => (viewDirty = true));
+  ro.observe(document.getElementById('left'));
+  ro.observe(document.getElementById('right'));
+}
+
 // ------------------------------------------------------------------ the console (DOM)
 const $ = (s) => document.querySelector(s);
 const sysBtns = $('#systems');
@@ -178,6 +212,21 @@ for (const b of document.querySelectorAll('[data-open]')) b.addEventListener('cl
   target.open = Number(b.dataset.open);
 });
 canvas.addEventListener('wheel', takeOver, {passive: true});
+// phone: the bottom sheet opens from its handle or its title; the control strip shows more buttons on demand
+const elRight = document.getElementById('right'), elLeft = document.getElementById('left');
+const toggleSheet = (open) => {
+  elRight.classList.toggle('open', open ?? !elRight.classList.contains('open'));
+  viewDirty = true;
+};
+document.getElementById('sheetbar').addEventListener('click', () => toggleSheet());
+document.getElementById('info').addEventListener('click', (ev) => {
+  if (small.matches && ev.target.closest('h3')) toggleSheet();
+});
+document.getElementById('ctlmore').addEventListener('click', (ev) => {
+  const open = elLeft.classList.toggle('open');
+  ev.currentTarget.textContent = open ? '收起 ▴' : '更多 ▾';
+  viewDirty = true;
+});
 sysBtns.addEventListener('click', (ev) => {
   const b = ev.target.closest('.sys');
   if (!b) return;
@@ -386,12 +435,10 @@ function frame(nowMs) {
   const W = innerWidth, H = innerHeight;
   if (canvas.width !== Math.round(W * renderer.getPixelRatio()) || canvas.height !== Math.round(H * renderer.getPixelRatio())) {
     renderer.setSize(W, H, false);
-    camera.aspect = W / H;
-    // keep the phone the same size on a portrait screen
-    camera.fov = W / H < 1 ? 2 * Math.atan(Math.tan(16 * D2R) / (W / H) * 0.9) / D2R : 32;
-    camera.updateProjectionMatrix();
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    viewDirty = true;
   }
+  if (viewDirty) fitView(W, H);
 
   // quality tiers: a slow GPU gets a lower pixel ratio, then smaller shadows
   if (STILL === null && dt > 0) {

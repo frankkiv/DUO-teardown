@@ -61,16 +61,66 @@ button.on kbd{color:#fff;background:transparent;border-color:rgba(255,255,255,.5
 #disc-m{display:none}
 #tourbar{position:fixed;left:0;right:0;bottom:0;height:3px;background:var(--acc);transform-origin:0 0;transform:scaleX(0)}
 .hint{font-size:11.5px;color:var(--mut);margin-top:10px}
-@media (max-width:900px){
-  #left{left:8px;top:8px;width:calc(100% - 16px);padding:10px 12px}
-  #left .ro,#left .hint,#left .legend{display:none}
-  #right{left:8px;right:8px;top:auto;bottom:8px;width:auto;max-height:38%;padding:10px 12px}
-  #systems{grid-template-columns:repeat(5,1fr)}
+#sheetbar,#ctlmore{display:none}
+/* ---- phones, portrait: a slim control strip on top, a bottom sheet that starts collapsed; the 3D gets the middle */
+@media (max-width:900px) and (orientation:portrait){
+  #left{left:0;top:0;width:100%;border-radius:0 0 14px 14px;border-width:0 0 1px;padding:8px 12px 8px;padding-top:max(8px,env(safe-area-inset-top))}
+  #left h1{font-size:15px;display:inline}
+  #left .tag{margin:0 0 0 6px;font-size:10px;padding:0 6px;vertical-align:2px}
+  #left .legend,#left .ro,#left .hint{display:none}
+  .sliders{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+  label.row{margin-top:4px;font-size:11.5px}
+  label.row b{font-size:12px}
+  .slide{height:28px}
+  #ticks{top:22px}
+  .btns{flex-wrap:nowrap;overflow-x:auto;margin-top:6px;gap:5px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .btns::-webkit-scrollbar{display:none}
+  .btns button{flex:none;padding:5px 9px;font-size:12px}
+  .btns kbd{display:none}
+  #left .btns.more{display:none}
+  #left.open .btns.more{display:flex}
+  #ctlmore{display:inline-flex}
+  #right{left:0;right:0;bottom:0;top:auto;width:auto;border-radius:16px 16px 0 0;border-width:1px 0 0;padding:0 12px max(10px,env(safe-area-inset-bottom));max-height:56%;overflow:hidden;display:flex;flex-direction:column}
+  #sheetbar{display:flex;align-items:center;justify-content:center;gap:8px;height:22px;flex:none;color:var(--mut);font-size:11px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  #sheetbar::before{content:'';width:38px;height:4px;border-radius:2px;background:#c9cdd3}
+  #systems{display:flex;overflow-x:auto;gap:6px;flex:none;padding-bottom:2px;scrollbar-width:none}
+  #systems::-webkit-scrollbar{display:none}
+  #systems button{flex:none;padding:6px 10px}
   #systems kbd{display:none}
-  #caption,#labels,#leaders{display:none}
-  #right{max-height:32%}
-  #disc{display:none}
-  #disc-m{display:block;margin-top:10px;font-size:10.5px;line-height:1.45;color:#9a9fa7}
+  #info{margin-top:8px;padding-top:8px;overflow:hidden;flex:1 1 auto;min-height:0}
+  #info h3{font-size:14px;margin:0}
+  #info h3::after{content:' ▴ 看規格';font-size:11px;font-weight:500;color:var(--mut)}
+  #info p,#info table,#disc-m{display:none}
+  #right.open #info{overflow:auto;-webkit-overflow-scrolling:touch}
+  #right.open #info h3{margin-bottom:4px}
+  #right.open #info h3::after{content:''}
+  #right.open #info p,#right.open #info table{display:revert}
+  #right.open #disc-m{display:block}
+  #disc-m{margin-top:10px;font-size:10.5px;line-height:1.45;color:#9a9fa7;flex:none}
+  #caption{bottom:auto;top:var(--cap-top,50%);transform:translate(-50%,-100%);padding:6px 12px;border-radius:10px;max-width:calc(100% - 24px)}
+  #caption b{font-size:13.5px}
+  #caption span{display:none}
+  #labels,#leaders,#disc{display:none}
+}
+/* ---- phones, landscape: panels become two narrow scrolling columns at the sides */
+@media (max-height:500px) and (orientation:landscape){
+  #left{left:max(8px,env(safe-area-inset-left));top:8px;bottom:8px;width:236px;padding:10px 12px;overflow:auto}
+  #left h1{font-size:15px}
+  #left .tag{font-size:10px;margin:2px 0 6px}
+  #left .legend,#left .ro,#left .hint{display:none}
+  label.row{margin-top:4px}
+  .btns{margin-top:8px;gap:5px}
+  .btns button{padding:5px 8px;font-size:12px}
+  .btns kbd{display:none}
+  #right{right:max(8px,env(safe-area-inset-right));top:8px;bottom:8px;width:250px;max-height:none;padding:10px 12px}
+  #systems{grid-template-columns:1fr 1fr}
+  #systems kbd{display:none}
+  #info p{font-size:12px}
+  #caption{bottom:12px;padding:6px 12px;max-width:calc(100% - 520px)}
+  #caption b{font-size:13px}
+  #caption span{display:none}
+  #labels,#leaders,#disc{display:none}
+  #disc-m{display:block;margin-top:10px;font-size:10px;line-height:1.45;color:#9a9fa7}
 }
 </style>
 </head>
@@ -83,18 +133,21 @@ button.on kbd{color:#fff;background:transparent;border-color:rgba(255,255,255,.5
   <h1>iPhone Duo 拆解模擬</h1>
   <span class="tag">非官方模型 · 規格依 Apple 規格頁與 iFixit 拆解</span>
   <div class="legend"><i class="src s-o">官</i>Apple 官方 <i class="src s-t">拆</i>iFixit 實拆 <i class="src s-r">報</i>媒體報導 <i class="src s-e">推</i>本頁推定</div>
-  <label class="row">拆解進度<b id="r-parts"></b></label>
-  <div class="slide"><input id="explode" type="range" min="0" max="1000" value="0" aria-label="拆解進度"><div id="ticks"></div></div>
-  <label class="row">鉸鏈角度<b id="r-open">180°</b></label>
-  <div class="slide"><input id="hinge" type="range" min="0" max="180" value="180" aria-label="鉸鏈角度"></div>
-  <div class="btns" style="margin-top:4px">
-    <button data-open="0">合起 0°</button><button data-open="100">立著 100°</button><button data-open="180">攤平 180°</button>
+  <div class="sliders">
+    <div><label class="row">拆解進度<b id="r-parts"></b></label>
+    <div class="slide"><input id="explode" type="range" min="0" max="1000" value="0" aria-label="拆解進度"><div id="ticks"></div></div></div>
+    <div><label class="row">鉸鏈角度<b id="r-open">180°</b></label>
+    <div class="slide"><input id="hinge" type="range" min="0" max="180" value="180" aria-label="鉸鏈角度"></div></div>
   </div>
   <div class="btns">
+    <button id="tour"><i></i><span>自動導覽</span></button>
     <button id="prev">◀ 上一步</button><button id="next">下一步 ▶</button>
     <button id="xray"><kbd>X</kbd>透視外殼</button>
+    <button id="ctlmore">更多 ▾</button>
+  </div>
+  <div class="btns more">
+    <button data-open="0">合起 0°</button><button data-open="100">立著 100°</button><button data-open="180">攤平 180°</button>
     <button id="reset">重設</button>
-    <button id="tour"><i></i><span>自動導覽</span></button>
   </div>
   <div class="ro">
     <div>機身寬度<b id="r-width"></b></div>
@@ -106,6 +159,7 @@ button.on kbd{color:#fff;background:transparent;border-color:rgba(255,255,255,.5
 </div>
 
 <div class="panel" id="right">
+  <div id="sheetbar" role="button" aria-label="展開或收合規格">規格</div>
   <div id="systems"></div>
   <div id="info"></div>
   <div id="disc-m">本模型依網路公開資料（Apple 規格頁、iFixit 拆解、媒體報導）建立，部分內部配置為推定，僅供參考。非 Apple 官方製作，與 Apple、iFixit 無關；iPhone 為 Apple Inc. 商標。</div>
